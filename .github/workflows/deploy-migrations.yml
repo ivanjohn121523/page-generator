@@ -1,0 +1,46 @@
+name: Deploy database migrations
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-migrations
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    name: Push Supabase migrations
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Apply migrations
+        run: |
+          set -euo pipefail
+          if [ -n "${DATABASE_URL:-}" ]; then
+            supabase db push --db-url "$DATABASE_URL"
+          elif [ -n "${SUPABASE_ACCESS_TOKEN:-}" ] && [ -n "${SUPABASE_PROJECT_ID:-}" ] && [ -n "${SUPABASE_DB_PASSWORD:-}" ]; then
+            supabase link --project-ref "$SUPABASE_PROJECT_ID"
+            supabase db push
+          else
+            echo "Add a GitHub Actions secret so migrations can reach your database:"
+            echo "  DATABASE_URL  (session pooler or direct Postgres URI)"
+            echo "or all of:"
+            echo "  SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_ID, SUPABASE_DB_PASSWORD"
+            exit 1
+          fi

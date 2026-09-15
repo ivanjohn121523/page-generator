@@ -1,8 +1,5 @@
-import React from 'react'
+import CreateSiteForm from "./components/CreateSiteForm";
 
 export default function Dashboard() {
-  return (
-    <div>Dashboard</div>
-  )
+  return <CreateSiteForm />;
 }
-
