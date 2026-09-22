@@ -33,8 +33,9 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+    console.log(error)
     return NextResponse.json(
-      { error: "Failed to create website." },
+      { error: "Failed to create website.", detail: JSON.stringify(error)},
       { status: 500 },
     );
   }

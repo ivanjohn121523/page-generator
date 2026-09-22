@@ -1,12 +1,11 @@
-"use client";
-
 import Link from "next/link";
-import { pagePath } from "@/src/lib/website/catalog";
-import { useSitesStore } from "@/src/lib/stores/sites";
+import { getKyselyClient } from "@/src/core/kysely/client";
+import { requireUser } from "@/src/lib/auth/require-user";
+import { listWebsitesForOwner } from "@/src/lib/website/database/queries";
 
-export default function Sites() {
-  const hasHydrated = useSitesStore((state) => state.hasHydrated);
-  const sites = useSitesStore((state) => state.sites);
+export default async function Sites() {
+  const user = await requireUser();
+  const sites = await listWebsitesForOwner(getKyselyClient(), user.id);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
@@ -25,9 +24,7 @@ export default function Sites() {
         </Link>
       </div>
 
-      {!hasHydrated ? (
-        <p className="py-16 text-center text-sm text-gray-500">Loading sites…</p>
-      ) : sites.length === 0 ? (
+      {sites.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
           <p className="text-sm font-medium text-gray-900">No sites yet</p>
           <p className="mt-1 text-sm text-gray-500">
@@ -55,10 +52,7 @@ export default function Sites() {
                 <p className="text-sm font-semibold text-gray-900">{site.name}</p>
                 <p className="mt-1 font-mono text-xs text-gray-500">{site.slug}.site</p>
                 <p className="mt-3 text-sm text-gray-600">
-                  {site.pages.length} {site.pages.length === 1 ? "page" : "pages"}
-                  {site.pages[0]
-                    ? ` · Home ${pagePath(site.pages[0].slug)}`
-                    : ""}
+                  {site.pageCount} {site.pageCount === 1 ? "page" : "pages"}
                 </p>
               </Link>
             </li>

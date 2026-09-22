@@ -1,3 +1,4 @@
 export const API = {
-  WEBSITE_CREATE: "/api/website/create"
+  WEBSITE: "/api/website",
+  WEBSITE_CREATE: "/api/website/create",
 }

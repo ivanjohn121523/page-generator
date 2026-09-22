@@ -48,3 +48,12 @@ export type GeneratedSite = {
 };
 
 export type WebsitesInsertSchema = Database['public']['Tables']['websites']['Insert'];
+
+export type WebsiteListItem = {
+  id: string;
+  name: string;
+  slug: string;
+  tagline: string | null;
+  primaryColor: string;
+  pageCount: number;
+};
